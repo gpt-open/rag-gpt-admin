@@ -3,8 +3,9 @@ import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  base: "/open-kf-admin",
   server: {
-    port: 5273,
+    port: 5277,
   },
   plugins: [react()],
   resolve: {

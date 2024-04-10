@@ -8,8 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface FieldProps {}
-
 const Field = () => {
   return (
     <>

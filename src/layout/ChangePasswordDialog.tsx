@@ -49,7 +49,7 @@ export function ChangePasswordDialog({
       removeToken();
       router.navigate("/login");
     } catch (error) {
-      toast.error("Failed to update password.");
+      toast.error((error as any).message || "Failed to update password.");
     }
     setLoading(false);
   };

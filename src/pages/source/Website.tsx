@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { LinkTable } from "./LinkTable";
 import { FilterLinksDialog } from "./FilterLinksDialog";
 import { deleteCrawlData, getCrawlStateWithList, importCrawlData } from "@/api";
+import { toast } from "sonner";
 
 export const Website = () => {
   const [site, setSite] = useState<string>("");
@@ -11,18 +12,31 @@ export const Website = () => {
   const [links, setLinks] = useState<API.CrawlUrlData[]>([]);
 
   useEffect(() => {
-    getCrawlStateWithList()
-      .then(({ data }) => setLinks(data.url_list))
-      .finally(() => setLoading(false));
+    getLinks();
   }, []);
+
+  const getLinks = async () => {
+    try {
+      const {
+        data: { url_list },
+      } = await getCrawlStateWithList();
+      setLinks(url_list);
+    } catch (error) {
+      toast.error((error as any).message || "Failed to get link list.");
+    }
+    setLoading(false);
+  };
 
   const deleteLinks = async (ids: number[]) => {
     await deleteCrawlData(ids);
     setLinks((prev) => prev.filter((link) => !ids.includes(link.id)));
+    toast.success("Deleted successfully");
   };
 
   const updateLinks = async (ids: number[]) => {
     await importCrawlData(ids);
+    getLinks();
+    toast.success("Updated successfully");
   };
 
   return (
@@ -47,6 +61,7 @@ export const Website = () => {
                 <FilterLinksDialog
                   site={site}
                   onDialogClose={() => setSite("")}
+                  onConfirm={getLinks}
                 />
               </div>
             </div>

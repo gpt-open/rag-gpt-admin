@@ -1,8 +1,8 @@
 import HomeLayout from "@/layout/HomeLayout";
 import { getToken } from "@/utils/storage";
-import { createBrowserRouter, redirect } from "react-router-dom";
+import { createHashRouter, redirect } from "react-router-dom";
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: "/",
     children: [
@@ -11,7 +11,7 @@ const router = createBrowserRouter([
         loader: () => {
           const token = getToken();
           if (!token) {
-            return redirect("/login");
+            return redirect("login");
           }
           return {};
         },
@@ -24,14 +24,14 @@ const router = createBrowserRouter([
             },
           },
           {
-            path: "/dashboard",
+            path: "dashboard",
             async lazy() {
               const { Dashboard } = await import("@/pages/dashboard/Dashboard");
               return { Component: Dashboard };
             },
           },
           {
-            path: "/source",
+            path: "source",
             async lazy() {
               const { Source } = await import("@/pages/source/Source");
               return { Component: Source };
@@ -47,7 +47,7 @@ const router = createBrowserRouter([
             ],
           },
           {
-            path: "/embed",
+            path: "embed",
             async lazy() {
               const { Embed } = await import("@/pages/Embed");
               return { Component: Embed };

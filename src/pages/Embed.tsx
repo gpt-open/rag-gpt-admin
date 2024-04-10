@@ -5,13 +5,17 @@ import { useState } from "react";
 const hostname = window.location.hostname;
 
 const iframe = `<iframe 
-src="https://${hostname}/chatbot-iframe"
+src="https://${hostname}/open-kf-chatbot"
 title="Chatbot"
 style="min-width: 420px;min-height: 60vh"
 frameborder="0"
 ></iframe>`;
 
-const script = `<script src="https://${hostname}/embed.min.js" defer></script>`;
+const script = `<script 
+src="https://${hostname}/open-kf-chatbot/embed.js" 
+bot-domain="https://${hostname}/open-kf-chatbot" 
+defer
+></script>`;
 
 export const Embed = () => {
   const [copied, setCopied] = useState({

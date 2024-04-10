@@ -33,11 +33,14 @@ export const Setting = () => {
     suggested_messages: "",
   });
   const [loadingState, setLoadingState] = useState({
-    uploading: false,
     updating: false,
-    removing: false,
+    avatarUploading: false,
+    avatarRemoving: false,
+    chatIconUploading: false,
+    chatIconRemoving: false,
   });
-  const fileSelector = useRef<HTMLInputElement>(null);
+  const avatarFileSelector = useRef<HTMLInputElement>(null);
+  const chatIconFileSelector = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     getBotSettings().then((res) => {
@@ -67,36 +70,51 @@ export const Setting = () => {
     setLoadingState((prev) => ({ ...prev, updating: true }));
     try {
       await updateBotSettings(settings);
+      toast.success("Settings updated successfully.");
     } catch (error) {
-      toast.error("Failed to update settings. Please try again.");
+      toast.error(
+        (error as any).message || "Failed to update settings. Please try again."
+      );
     }
     setLoadingState((prev) => ({ ...prev, updating: false }));
   };
 
-  const onFileSelected = async (file?: File) => {
+  const onFileSelected = async (
+    field: "bot_avatar" | "chat_icon",
+    file?: File
+  ) => {
     if (!file) return;
-    setLoadingState((prev) => ({ ...prev, uploading: true }));
+    const loadingField =
+      field === "bot_avatar" ? " avatarRemoving" : "chatIconRemoving";
+    setLoadingState((prev) => ({ ...prev, [loadingField]: true }));
     try {
       const {
         data: { picture_url },
       } = await uploadPicture(file);
-      await updateBotSettings({ ...settings, bot_avatar: picture_url });
-      setSettings((prev) => ({ ...prev, bot_avatar: picture_url }));
+      await updateBotSettings({ ...settings, [field]: picture_url });
+      setSettings((prev) => ({ ...prev, [field]: picture_url }));
+      toast.success("Image updated successfully.");
     } catch (error) {
-      toast.error("Failed to upload image. Please try again.");
+      toast.error(
+        (error as any).message || "Failed to upload image. Please try again."
+      );
     }
-    setLoadingState((prev) => ({ ...prev, uploading: false }));
+    setLoadingState((prev) => ({ ...prev, [loadingField]: false }));
   };
 
-  const removeAvatar = async () => {
-    setLoadingState((prev) => ({ ...prev, removing: true }));
+  const removeImageField = async (field: "bot_avatar" | "chat_icon") => {
+    const loadingField =
+      field === "bot_avatar" ? " avatarRemoving" : "chatIconRemoving";
+    setLoadingState((prev) => ({ ...prev, [loadingField]: true }));
     try {
-      await updateBotSettings({ ...settings, bot_avatar: "" });
-      setSettings((prev) => ({ ...prev, bot_avatar: "" }));
+      await updateBotSettings({ ...settings, [field]: "" });
+      setSettings((prev) => ({ ...prev, [field]: "" }));
     } catch (error) {
-      toast.error("Failed to remove image. Please try again.");
+      toast.error(
+        (error as any).message || "Failed to remove image. Please try again."
+      );
     }
-    setLoadingState((prev) => ({ ...prev, removing: false }));
+    setLoadingState((prev) => ({ ...prev, [loadingField]: false }));
   };
 
   return (
@@ -111,7 +129,7 @@ export const Setting = () => {
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>{settings.model}</SelectLabel>
-                <SelectItem value="gpt-3.5-turbor">gpt-3.5-turbor</SelectItem>
+                <SelectItem value="gpt-3.5-turbo">gpt-3.5-turbo</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -153,6 +171,51 @@ export const Setting = () => {
           />
         </div>
 
+        <div className="flex items-center">
+          <Avatar>
+            <AvatarFallback></AvatarFallback>
+            <AvatarImage src={settings.bot_avatar} alt={settings.bot_name} />
+          </Avatar>
+          <div className="ml-6">
+            <small className="text-sm font-medium leading-none">
+              Profile Picture
+            </small>
+            <div className="mt-1 mb-3">
+              <div className="flex items-center space-x-3">
+                <Button
+                  className="h-7 px-3 text-xs"
+                  variant="outline"
+                  loading={loadingState.avatarUploading}
+                  onClick={() => avatarFileSelector.current?.click()}
+                >
+                  <UploadIcon className="mr-2" />
+                  Upload image
+                </Button>
+                {settings.bot_avatar && (
+                  <Button
+                    className="h-7 px-3 text-xs"
+                    variant="ghost"
+                    loading={loadingState.avatarRemoving}
+                    onClick={() => removeImageField("bot_avatar")}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+              <Input
+                className="hidden"
+                accept="image/*"
+                multiple={false}
+                type="file"
+                ref={avatarFileSelector}
+                onChange={(e) =>
+                  onFileSelected("bot_avatar", e.target.files?.[0])
+                }
+              />
+            </div>
+          </div>
+        </div>
+
         <small className="text-sm font-medium leading-none">Display name</small>
         <div className="mt-1 mb-3">
           <Input
@@ -168,7 +231,7 @@ export const Setting = () => {
         <div className="flex items-center">
           <Avatar>
             <AvatarFallback></AvatarFallback>
-            <AvatarImage src={settings.bot_avatar} alt={settings.bot_name} />
+            <AvatarImage src={settings.chat_icon} alt="Ask" />
           </Avatar>
           <div className="ml-6">
             <small className="text-sm font-medium leading-none">
@@ -179,18 +242,18 @@ export const Setting = () => {
                 <Button
                   className="h-7 px-3 text-xs"
                   variant="outline"
-                  loading={loadingState.uploading}
-                  onClick={() => fileSelector.current?.click()}
+                  loading={loadingState.chatIconUploading}
+                  onClick={() => chatIconFileSelector.current?.click()}
                 >
                   <UploadIcon className="mr-2" />
                   Upload image
                 </Button>
-                {settings.bot_avatar && (
+                {settings.chat_icon && (
                   <Button
                     className="h-7 px-3 text-xs"
                     variant="ghost"
-                    loading={loadingState.removing}
-                    onClick={removeAvatar}
+                    loading={loadingState.chatIconRemoving}
+                    onClick={() => removeImageField("chat_icon")}
                   >
                     Remove
                   </Button>
@@ -201,8 +264,10 @@ export const Setting = () => {
                 accept="image/*"
                 multiple={false}
                 type="file"
-                ref={fileSelector}
-                onChange={(e) => onFileSelected(e.target.files?.[0])}
+                ref={chatIconFileSelector}
+                onChange={(e) =>
+                  onFileSelected("chat_icon", e.target.files?.[0])
+                }
               />
             </div>
           </div>

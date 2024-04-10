@@ -103,7 +103,10 @@ export const Dashboard = () => {
       }));
     } catch (error) {
       if (!axios.isCancel(error)) {
-        toast.error("Failed to fetch chat logs. Please try again.");
+        toast.error(
+          (error as any).message ||
+            "Failed to fetch chat logs. Please try again."
+        );
         setPageState((prev) => ({ ...prev, messageInitLoading: false }));
       }
     }
@@ -132,7 +135,10 @@ export const Dashboard = () => {
         conversationMoreLoading: false,
       }));
     } catch (error) {
-      toast.error("Failed to fetch conversation list. Please try again.");
+      toast.error(
+        (error as any).message ||
+          "Failed to fetch conversation list. Please try again."
+      );
       setPageState((prev) => ({ ...prev, conversationMoreLoading: false }));
     }
   };
@@ -165,7 +171,10 @@ export const Dashboard = () => {
       }));
     } catch (error) {
       if (!axios.isCancel(error)) {
-        toast.error("Failed to fetch chat logs. Please try again.");
+        toast.error(
+          (error as any).message ||
+            "Failed to fetch chat logs. Please try again."
+        );
         setPageState((prev) => ({ ...prev, messageMoreLoading: false }));
       }
     }

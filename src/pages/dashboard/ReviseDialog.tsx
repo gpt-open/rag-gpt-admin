@@ -43,7 +43,7 @@ export function ReviseDialog({
       toast.success("Answer updated successfully.");
       internalOpenChange(false);
     } catch (error) {
-      toast.error("Failed to update answer.");
+      toast.error((error as any).message || "Failed to update answer.");
     }
     setLoading(false);
   };

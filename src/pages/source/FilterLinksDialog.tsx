@@ -21,9 +21,11 @@ import {
 
 export function FilterLinksDialog({
   site,
+  onConfirm,
   onDialogClose,
 }: {
   site: string;
+  onConfirm?: () => void;
   onDialogClose?: () => void;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -95,6 +97,7 @@ export function FilterLinksDialog({
     try {
       await importCrawlData(links.map((link) => link.id));
       onOpenChange(false);
+      setTimeout(() => onConfirm?.(), 1000);
     } catch (error) {
       setErrMessage("Failed to import links, please try again later.");
     }
@@ -115,7 +118,7 @@ export function FilterLinksDialog({
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="lg:min-w-[48rem]"
+        className="sm:min-w-[48rem] sm:max-h-[80vh] flex flex-col"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>

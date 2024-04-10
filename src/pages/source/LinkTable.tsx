@@ -31,24 +31,24 @@ import { DocStatus } from "@/constant/constant";
 
 const DocStatusMap = {
   [DocStatus.Recorded]: {
-    variant: "default",
     text: "Recorded",
+    bgColor: "#787878",
   },
   [DocStatus.Crawling]: {
-    variant: "default",
     text: "Crawling",
+    bgColor: "#6cb2eb",
   },
   [DocStatus.Crawled]: {
-    variant: "outline",
     text: "Crawled",
+    bgColor: "#17a2b8",
   },
   [DocStatus.Stored]: {
-    variant: "secondary",
     text: "Stored",
+    bgColor: "#38c172",
   },
   [DocStatus.Expired]: {
-    variant: "destructive",
     text: "Expired",
+    bgColor: "#e3342f",
   },
 };
 
@@ -114,7 +114,13 @@ export function LinkTable({
           DocStatusMap[row.getValue("doc_status") as DocStatus];
         return (
           <div className="text-right">
-            <Badge variant={statusData.variant}>{statusData.text}</Badge>
+            <Badge
+              className="text-white"
+              style={{ backgroundColor: statusData.bgColor }}
+              variant="outline"
+            >
+              {statusData.text}
+            </Badge>
           </div>
         );
       },
@@ -168,7 +174,7 @@ export function LinkTable({
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full flex-1 overflow-hidden flex flex-col">
       {/* <div className="flex items-center py-4">
         <Input
           placeholder="Filter url..."
@@ -179,7 +185,7 @@ export function LinkTable({
           className="max-w-sm"
         />
       </div> */}
-      <div className="rounded-md border">
+      <div className="rounded-md border flex flex-col overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

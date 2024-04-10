@@ -20,7 +20,7 @@ const LogoutAlert = ({
 }) => {
   const confirmLogout = () => {
     removeToken();
-    router.navigate("/login");
+    router.navigate(`/login`);
   };
 
   return (

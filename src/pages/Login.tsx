@@ -39,7 +39,7 @@ export function Login() {
       saveToken(token);
       router.navigate("/");
     } catch (error) {
-      toast.error("Failed to login.");
+      toast.error((error as any).message || "Failed to login.");
     }
     setLoading(false);
   };
