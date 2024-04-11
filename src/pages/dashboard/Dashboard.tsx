@@ -34,8 +34,8 @@ export const Dashboard = () => {
     messageMoreLoading: false,
     conversationInitLoading: true,
     conversationMoreLoading: false,
-    hasMoreMessage: true,
-    hasMoreConversation: true,
+    hasMoreMessage: false,
+    hasMoreConversation: false,
   });
   const cancelToken = useRef(axios.CancelToken.source());
 
@@ -48,14 +48,18 @@ export const Dashboard = () => {
       page_size: ConversationPageSize,
     })
       .then(({ data: { conversation_list } }) => {
+        const isEmpty = conversation_list.length === 0;
         setConversationList(conversation_list);
-        selectConversation(conversation_list[0].user_id);
         setPageState((prev) => ({
           ...prev,
           hasMoreConversation:
             conversation_list.length === ConversationPageSize,
           conversationInitLoading: false,
+          messageInitLoading: !isEmpty,
         }));
+        if (!isEmpty) {
+          selectConversation(conversation_list[0].user_id);
+        }
       })
       .catch(() =>
         setPageState((prev) => ({ ...prev, conversationInitLoading: false }))
