@@ -2,18 +2,18 @@ import { Button } from "@/components/ui/button";
 import { Check, Clipboard } from "lucide-react";
 import { useState } from "react";
 
-const hostname = window.location.hostname;
+const origin = window.location.origin;
 
 const iframe = `<iframe 
-src="https://${hostname}/open-kf-chatbot"
+src="${origin}/open-kf-chatbot"
 title="Chatbot"
 style="min-width: 420px;min-height: 60vh"
 frameborder="0"
 ></iframe>`;
 
 const script = `<script 
-src="https://${hostname}/open-kf-chatbot/embed.js" 
-bot-domain="https://${hostname}/open-kf-chatbot" 
+src="${origin}/open-kf-chatbot/embed.js" 
+bot-domain="${origin}/open-kf-chatbot" 
 defer
 ></script>`;
 
