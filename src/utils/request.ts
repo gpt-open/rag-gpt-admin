@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getToken } from "./storage";
+import router from "@/router";
 
 const createAxiosInstance = (baseURL: string) => {
   const serves = axios.create({
@@ -23,6 +24,9 @@ const createAxiosInstance = (baseURL: string) => {
       return res.data;
     },
     (err) => {
+      if (err.response.status === 401) {
+        router.navigate("/login", { replace: true });
+      }
       if (err.message.includes("timeout")) {
         console.error("error", err);
       }
