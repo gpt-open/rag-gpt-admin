@@ -2,8 +2,10 @@ import * as React from "react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -28,6 +30,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DocStatus } from "@/constant/constant";
+import { Input } from "@/components/ui/input";
 
 const DocStatusMap = {
   [DocStatus.Recorded]: {
@@ -57,15 +60,20 @@ export function LinkTable({
   loading,
   updateLinks,
   deleteLinks,
+  onSelectLink,
 }: {
   links: API.CrawlUrlData[];
   loading?: boolean;
   updateLinks?: (id: number[]) => Promise<void>;
   deleteLinks: (id: number[]) => Promise<void>;
+  onSelectLink?: (link: API.CrawlUrlData) => void;
 }) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [updateLoading, setUpdateLoading] = React.useState(false);
   const [deleteLoading, setDeleteLoading] = React.useState(false);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
 
   const columns: ColumnDef<API.CrawlUrlData>[] = [
     {
@@ -93,7 +101,14 @@ export function LinkTable({
     {
       accessorKey: "url",
       header: "Url",
-      cell: ({ row }) => <div>{row.getValue("url")}</div>,
+      cell: ({ row }) => (
+        <div
+          className="cursor-pointer"
+          onClick={() => onSelectLink?.(row.original)}
+        >
+          {row.getValue("url")}
+        </div>
+      ),
     },
     {
       accessorKey: "content_length",
@@ -165,17 +180,20 @@ export function LinkTable({
   const table = useReactTable({
     data: links,
     columns,
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
     state: {
+      columnFilters,
       rowSelection,
     },
   });
 
   return (
     <div className="w-full flex-1 overflow-hidden flex flex-col">
-      {/* <div className="flex items-center py-4">
+      <div className="flex items-center py-4 pl-1">
         <Input
           placeholder="Filter url..."
           value={(table.getColumn("url")?.getFilterValue() as string) ?? ""}
@@ -184,7 +202,7 @@ export function LinkTable({
           }
           className="max-w-sm"
         />
-      </div> */}
+      </div>
       <div className="rounded-md border flex flex-col overflow-hidden">
         <Table>
           <TableHeader>

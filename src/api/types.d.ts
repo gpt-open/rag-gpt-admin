@@ -86,6 +86,11 @@ declare namespace API {
     ctime: number;
     mtime: number;
   };
+  type CrawlSplitDetail = {
+    index: number;
+    content: string;
+    content_length: number;
+  };
 
   // response
   type BaseResopnse<T> = {

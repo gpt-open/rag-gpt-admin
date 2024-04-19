@@ -5,11 +5,15 @@ import { LinkTable } from "./LinkTable";
 import { FilterLinksDialog } from "./FilterLinksDialog";
 import { deleteCrawlData, getCrawlStateWithList, importCrawlData } from "@/api";
 import { toast } from "sonner";
+import { SplitListDialog } from "./SplitListDialog";
 
 export const Website = () => {
   const [site, setSite] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [links, setLinks] = useState<API.CrawlUrlData[]>([]);
+  const [selectedUrl, setSelectedUrl] = useState<API.CrawlUrlData>();
+  const [openSplitListDialog, setOpenSplitListDialog] =
+    useState<boolean>(false);
 
   useEffect(() => {
     getLinks();
@@ -37,6 +41,14 @@ export const Website = () => {
     await importCrawlData(ids);
     getLinks();
     toast.success("Updated successfully");
+  };
+
+  const onSplitDetailsDialogOpenChange = (
+    open: boolean,
+    urlData?: API.CrawlUrlData
+  ) => {
+    setOpenSplitListDialog(open);
+    setSelectedUrl(urlData);
   };
 
   return (
@@ -78,8 +90,16 @@ export const Website = () => {
                   loading={loading}
                   deleteLinks={deleteLinks}
                   updateLinks={updateLinks}
+                  onSelectLink={(urlData) =>
+                    onSplitDetailsDialogOpenChange(true, urlData)
+                  }
                 />
               </div>
+              <SplitListDialog
+                open={openSplitListDialog}
+                selectedUrl={selectedUrl}
+                onOpenChange={onSplitDetailsDialogOpenChange}
+              />
             </div>
           </div>
         </div>

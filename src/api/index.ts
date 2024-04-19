@@ -45,6 +45,11 @@ export const getCrawlStateWithList = (
 ): Promise<API.BaseResopnse<API.GetCrawlStateWithListData>> =>
   request.post(`/open_kf_api/get_crawl_url_list`, { site });
 
+export const getCrawlSplitDetails = (
+  id: number
+): Promise<API.BaseResopnse<{ sub_content_list: API.CrawlSplitDetail[] }>> =>
+  request.post(`/open_kf_api/get_url_sub_content_list`, { id });
+
 export const importCrawlData = (id_list: number[]) =>
   request.post(`/open_kf_api/add_crawl_url_list`, { id_list });
 
