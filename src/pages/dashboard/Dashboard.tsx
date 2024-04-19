@@ -38,6 +38,7 @@ export const Dashboard = () => {
     hasMoreConversation: false,
   });
   const cancelToken = useRef(axios.CancelToken.source());
+  const initFlag = useRef(true);
 
   useEffect(() => {
     if (!timeRange.from || !timeRange.to) return;
@@ -52,18 +53,20 @@ export const Dashboard = () => {
         setConversationList(conversation_list);
         setPageState((prev) => ({
           ...prev,
+          conversationPage: 2,
           hasMoreConversation:
             conversation_list.length === ConversationPageSize,
           conversationInitLoading: false,
-          messageInitLoading: !isEmpty,
+          messageInitLoading: initFlag.current && !isEmpty,
         }));
-        if (!isEmpty) {
+        if (!isEmpty && initFlag.current) {
           selectConversation(conversation_list[0].user_id);
         }
       })
       .catch(() =>
         setPageState((prev) => ({ ...prev, conversationInitLoading: false }))
-      );
+      )
+      .finally(() => (initFlag.current = false));
   }, [timeRange]);
 
   const onOpenChange = useCallback((open: boolean, message?: API.ChatLog) => {
