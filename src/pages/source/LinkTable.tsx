@@ -3,6 +3,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
+  PaginationState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -31,6 +32,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { DocStatus } from "@/constant/constant";
 import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const DocStatusMap = {
   [DocStatus.Recorded]: {
@@ -71,6 +81,10 @@ export function LinkTable({
   const [rowSelection, setRowSelection] = React.useState({});
   const [updateLoading, setUpdateLoading] = React.useState(false);
   const [deleteLoading, setDeleteLoading] = React.useState(false);
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -185,7 +199,9 @@ export function LinkTable({
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
     state: {
+      pagination,
       columnFilters,
       rowSelection,
     },
@@ -306,26 +322,86 @@ export function LinkTable({
           </div>
         )}
         {table.getFilteredRowModel().rows.length > 10 && (
-          <div className="space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
-          </div>
+          <Pagination className="w-fit">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  isDisabled={!table.getCanPreviousPage()}
+                  onClick={() => table.previousPage()}
+                />
+              </PaginationItem>
+              <CustomPagination
+                totalPages={table.getPageCount()}
+                pageIndex={pagination.pageIndex}
+                setPageIndex={(idx) => table.setPageIndex(idx)}
+              />
+              <PaginationItem>
+                <PaginationNext
+                  isDisabled={!table.getCanNextPage()}
+                  onClick={() => table.nextPage()}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         )}
       </div>
     </div>
   );
 }
+
+function CustomPagination({
+  totalPages,
+  pageIndex,
+  setPageIndex,
+}: {
+  totalPages: number;
+  pageIndex: number;
+  setPageIndex: (idx: number) => void;
+}) {
+  const pageNeighbours = 2;
+
+  const getPageRange = (currentPage: number) => {
+    const startPage = Math.max(1, currentPage - pageNeighbours);
+    const endPage = Math.min(totalPages, currentPage + pageNeighbours);
+    let pages = Array.from({ length: endPage - startPage + 1 }, (_, i) =>
+      String(startPage + i)
+    );
+
+    if (startPage > 1) {
+      pages = ["1", "ellipsisLeft", ...pages];
+    }
+    if (endPage < totalPages) {
+      pages = [...pages, "ellipsisRight", String(totalPages)];
+    }
+    return pages;
+  };
+
+  const pages = getPageRange(pageIndex + 1);
+
+  return (
+    <Pagination>
+      {pages.map((page) => {
+        if (page === "ellipsisLeft" || page === "ellipsisRight") {
+          return (
+            <PaginationItem key={page}>
+              <PaginationEllipsis />
+            </PaginationItem>
+          );
+        } else {
+          return (
+            <PaginationItem key={page}>
+              <PaginationLink
+                isActive={pageIndex === Number(page) - 1}
+                onClick={() => setPageIndex(Number(page) - 1)}
+              >
+                {page}
+              </PaginationLink>
+            </PaginationItem>
+          );
+        }
+      })}
+    </Pagination>
+  );
+}
+
+export default CustomPagination;
